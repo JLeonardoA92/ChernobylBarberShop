@@ -14,3 +14,8 @@ public class Chernobyl_User : IdentityUser
     public string LastName { get; set; }
 }
 
+public class ApplicationRole : IdentityRole
+{
+
+}
+

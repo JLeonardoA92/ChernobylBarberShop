@@ -1,13 +1,15 @@
+
+//
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ChernobylBarberShop.Areas.Identity.Data;
-using Microsoft.Extensions.Options;
 using ChernobylBarberShop.Core;
-
-
+using ChernobylBarberShop.Core.Repositories;
+using ChernobylBarberShop.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("ChernobylBarberShop_DbContextConnection") ?? throw new InvalidOperationException("Connection string 'ChernobylBarberShop_DbContextConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("ChernobylBarberShop_DbContextConnection");
 
 builder.Services.AddDbContext<ChernobylBarberShop_DbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -19,13 +21,13 @@ builder.Services.AddDefaultIdentity<Chernobyl_User>(options => options.SignIn.Re
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
 #region Authorization
 
-AddAuthorizationPolicies(builder.Services);
+AddAuthorizationPolicies();
 
 #endregion
 
+AddScoped();
 
 var app = builder.Build();
 
@@ -41,8 +43,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication();;
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -53,10 +54,10 @@ app.MapRazorPages();
 
 app.Run();
 
-void AddAuthorizationPolicies(IServiceCollection services)
 
+void AddAuthorizationPolicies()
 {
-    services.AddAuthorization(options =>
+    builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("EmployeeOnly", policy => policy.RequireClaim("EmployeeNumber"));
     });
@@ -66,7 +67,11 @@ void AddAuthorizationPolicies(IServiceCollection services)
         options.AddPolicy(Constants.Policies.RequireAdmin, policy => policy.RequireRole(Constants.Roles.Administrator));
         options.AddPolicy(Constants.Policies.RequireManager, policy => policy.RequireRole(Constants.Roles.Manager));
     });
-
 }
 
-
+void AddScoped()
+{
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+}
