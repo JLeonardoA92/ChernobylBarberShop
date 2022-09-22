@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChernobylBarberShop.Areas.Identity.Data;
 
-public class ChernobylBarberShop_DbContext : IdentityDbContext<Chernobyl_User>
+public class ChernobylBarberShop_DbContext : IdentityDbContext<Chernobyl_User, IdentityRole, string>
 {
     public ChernobylBarberShop_DbContext(DbContextOptions<ChernobylBarberShop_DbContext> options)
         : base(options)
